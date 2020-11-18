@@ -4,7 +4,7 @@ Flask app to manage user login and registration.
   
 Setup:
 ```
-git clone https://github.com/bhuvansingla/flask-login.git
+git clone https://github.com/Kinshukg04/Crypto_project.git
 cd flask-login
 virtualenv venv -p python3
 source venv/bin/activate
