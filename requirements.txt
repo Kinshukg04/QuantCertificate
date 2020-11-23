@@ -2,3 +2,4 @@ Flask
 Flask-SQLAlchemy
 qiskit
 imagehash
+pycryptodome

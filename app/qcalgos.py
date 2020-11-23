@@ -3,6 +3,7 @@ from qiskit.visualization import plot_histogram, plot_bloch_multivector
 import numpy as np
 from PIL import Image
 import imagehash
+from Crypto.Cipher import AES
 
 image = Image.open('../tmp/my wallpaper.png')
 
@@ -126,6 +127,21 @@ def hash_image(image, hash_size=256):
     assert(hash.shape==(hash_size,)), "Unexpected error in calculating message hash"
     return hash
 
+def encrypt(key, data):
+    cipher = AES.new(key, AES.MODE_EAX)
+    nonce = cipher.nonce
+    ciphertext, tag = cipher.encrypt_and_digest(data)
+
+def decrypt(key, nonce, ciphertext, tag):
+    cipher = AES.new(key, AES.MODE_EAX, nonce=nonce)
+    plaintext = cipher.decrypt(ciphertext)
+    try:
+        cipher.verify(tag)
+        print("The message is authentic:", plaintext)
+    except ValueError:
+        print("Key incorrect or message corrupted")
+
 # print(hash_image(image))
 size=256
-print(create_quantum_shared_key(max_size=size)) 
+print(create_quantum_shared_key(max_size=size))
+
