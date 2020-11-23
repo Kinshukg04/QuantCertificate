@@ -77,7 +77,7 @@ def allowed_file(filename):
 def inbox():
 
     return render_template('inbox.html')
-@app.route('/send', methods = ['POST'])
+@app.route('/send', methods = ['GET','POST'])
 def send():
 
     return render_template('send.html')
