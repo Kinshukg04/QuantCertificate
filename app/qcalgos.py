@@ -1,6 +1,131 @@
 from qiskit import QuantumCircuit, execute, Aer
 from qiskit.visualization import plot_histogram, plot_bloch_multivector
-from numpy.random import randint
 import numpy as np
+from PIL import Image
+import imagehash
 
-print("Imports Successful")
+image = Image.open('../tmp/my wallpaper.png')
+
+def random_binary_array(size=256):
+    return np.random.randint(2, size=size)
+
+def encode_message(bits, bases):
+    """Prepares qubits for given bits using bases transform
+    """
+    size = len(bases)
+
+    message = []
+    for i in range(size):
+        qc = QuantumCircuit(1,1)
+        if bases[i]==0: # Prepare qubit in Z-basis
+            if bits[i]==0:
+                pass
+            else:
+                qc.x(0)
+        else:           # Prepare qubit in X-basis
+            if bits[i]==0:
+                qc.h(0)
+            else:
+                qc.x(0)
+                qc.h(0)
+        qc.barrier()
+        message.append(qc)
+    return message
+
+def decode_message(message, bases):
+    """Measures message of qubits using given bases
+    """
+    backend = Aer.get_backend('qasm_simulator')
+    n = len(message)
+    measurements = np.zeros(n, dtype=np.int)
+
+    for q in range(n):
+        if bases[q]==0: # Measuring in Z-basis
+            message[q].measure(0,0)
+        if bases[q]==1: # Measuring in X-basis
+            message[q].h(0)
+            message[q].measure(0,0)
+        result = execute(message[q], backend, shots=1, memory=True).result()
+        measured_bit = int(result.get_memory()[0])
+        measurements[q] = measured_bit
+    return measurements
+
+def bit_intersection(sender_bases, receiver_bases, bits):
+    final_bits = []
+    n = len(sender_bases)
+    for q in range(n):
+        if sender_bases[q]==receiver_bases[q]:
+            final_bits.append(bits[q])
+    return final_bits
+
+def sample_bits(bits, selection):
+    sample = []
+    for i in selection:
+        i = np.mod(i, len(bits))
+        sample.append(bits.pop(i))
+    return sample
+
+def create_quantum_shared_key(max_size=256):
+    """Returns quantum shared key for 2p party
+
+    Parameters
+    -----------------------
+    max_size: Maximum size of shared key
+    """
+    # Create random message (bits) and random bases to prepare qubits by sender
+    sender_bits = random_binary_array(size=max_size)
+    sender_bases = random_binary_array(size=max_size)
+
+    # Send the message to recevier
+    message = encode_message(sender_bits, sender_bases)
+
+    # Decode message
+    receiver_bases = random_binary_array(size=max_size)
+    receiver_results = decode_message(message, receiver_bases)
+
+    # Create keys
+    sender_key = bit_intersection(sender_bases, receiver_bases, sender_bits)
+    receiver_key = bit_intersection(sender_bases, receiver_bases, receiver_results)
+    
+    # Send sender and receiver sample over transmission medium
+    sample_size = np.random.randint(len(sender_key))
+    bit_selection = np.random.randint(len(sender_key), size=sample_size)
+    sender_sample = sample_bits(sender_key, bit_selection)
+    receiver_sample = sample_bits(receiver_key, bit_selection)
+
+    assert (sender_sample==receiver_sample), "Somebody is trying to intercept the message"
+    shared_key = sender_key # or receiver key as both must be same
+
+    if len(shared_key)==0 or sender_key!=receiver_key:
+        # Repeat once more
+        # TODO: Remove huge stack call (extremely rare situation or impossible though)
+        return create_quantum_shared_key(max_size=max_size)
+    
+    return shared_key
+
+def hash_image(image, hash_size=256):
+    """Returns binary hash numpy array of length hash size encoding image
+
+    Parameters
+    ------------------------
+    image: Image object (PIL Image)
+    hash_size: Length of output binary hash array
+    """
+    if hash_size%4!=0:
+        raise Exception(f"Hash size {hash_size} must be even power of 2")
+
+    hash = imagehash.whash(
+        image=image,
+        hash_size=int(np.sqrt(hash_size))
+    )
+    # Convert to binary array and pad zeros
+    hash = bin(int(str(hash), 16)).replace("0b", "")
+    hash = (hash_size-len(hash))*"0"+hash
+    hash = np.array(list(map(int, hash)))
+
+    assert(hash.shape==(hash_size,)), "Unexpected error in calculating message hash"
+    return hash
+
+# print(hash_image(image))
+size=256
+print(create_quantum_shared_key(max_size=size)) 

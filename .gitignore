@@ -1,6 +1,9 @@
 # Data
 **/users.db
 
+# Temporary
+tmp/
+
 # Environments
 flask
 venv/
