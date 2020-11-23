@@ -9,6 +9,7 @@ cd flask-login
 virtualenv flask -p python3
 source flask/bin/activate
 pip3 install -r requirements.txt
+pip install qiskit
 python3 app.py
 ```
 
