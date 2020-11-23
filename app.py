@@ -10,7 +10,7 @@ ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg'}
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024
 
 db = SQLAlchemy(app)
 
