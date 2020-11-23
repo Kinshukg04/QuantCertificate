@@ -1,7 +1,8 @@
-flask
-users.db
+# Data
+**/users.db
 
 # Environments
+flask
 venv/
 env/
 .env
