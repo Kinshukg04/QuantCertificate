@@ -1,26 +1,22 @@
 {% extends 'base.html' %}
 {% block content %}
+
 <div class="limiter">
 		<div class="container-login100">
 			<div class="wrap-login100 p-t-50 p-b-90">
 				<span class="login100-form-title p-b-51">
-					<h1>Upload new File</h1>
+					<h1>Enter user id of recepient</h1>
 				</span>
 				<form method=post enctype=multipart/form-data>
-					<input type=file name=file>
-					<input type=submit value=Upload>
+					<input type=text name=send_user>
+					
 				</form>
 				<div class="container-login100-form-btn m-t-17">
 				<button class="login100-form-btn">
 					<a class="login100-form-btn" href="/send">Send</a>
 				</button>
-				</div>
-				<div class="container-login100-form-btn m-t-17">
-				<button class="login100-form-btn">
-					<a class="login100-form-btn" href="/"> Return to Home</a>
-				</button>
-				</div>
 			</div>
 		</div>
 	</div>
+</div>	
 {% endblock %}

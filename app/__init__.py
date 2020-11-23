@@ -1,24 +1,30 @@
-from flask import Flask, url_for, render_template, request, redirect, session
+from flask import Flask, url_for, render_template, request, redirect, session,flash
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
 import os
 from flask import send_from_directory, flash
+#from flask_file_upload import FileUpload
 
-UPLOAD_FOLDER = '/path/to/the/uploads'
+UPLOAD_FOLDER = '/home/kinshuk/Projects/Crypto-project/Crypto_project/uploads'
 ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg'}
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+
+
+app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024
 app.secret_key = "ThisIsNotASecret:p"
 
-db = SQLAlchemy(app)
 
+db = SQLAlchemy(app)
+#file_upload = FileUpload(app,db)
+#db.create_all()
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
+    #file = file_upload.Column()
 
     def __init__(self, username, password):
         self.username = username
@@ -53,9 +59,12 @@ def login():
     else:
         u = request.form['username']
         p = request.form['password']
+        #session['username'] = u
+        #session['password'] = p
         data = User.query.filter_by(username=u, password=p).first()
         if data is not None:
             session['logged_in'] = True
+
             return redirect(url_for('index'))
         return render_template('index.html', message="Incorrect Details")
 
@@ -64,9 +73,14 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-# @app.route('/upload')
-# def upload_file():
-#    return render_template('upload.html')
+@app.route('/inbox', methods = ['GET'])
+def inbox():
+
+    return render_template('inbox.html')
+@app.route('/send', methods = ['GET','POST'])
+def send():
+
+    return render_template('send.html')
     
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
@@ -84,10 +98,22 @@ def upload_file():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return redirect(url_for('uploaded_file',
-                                    filename=filename))
-    return render_template('upload.html')
+            #User_post = User(user_username,user_password)
+            #file_upload.save_files(User_post,files = {'file':file})
+            #return redirect(url_for('uploaded_file',filename=filename))
+            flash("file uploaded successfully",'Success')
+        else: 
+            flash('Upload Failed. Try again','Error:') 
+            return render_template('upload.html',message= "File uploaded")
 
+    return render_template('upload.html',message= "Upload Failed")
+
+# from werkzeug.middleware.shared_data import SharedDataMiddleware
+# app.add_url_rule('/uploads/<filename>', 'uploaded_file',
+#                  build_only=True)
+# app.wsgi_app = SharedDataMiddleware(app.wsgi_app, {
+#     '/uploads':  app.config['UPLOAD_FOLDER']
+# })
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'],
