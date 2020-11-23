@@ -1,2 +1,15 @@
+# Data
+**/users.db
+
+# Environments
 flask
-users.db
+venv/
+env/
+.env
+.venv
+
+# Caches
+**/__pycache__/
+
+# Settings
+.vscode/
