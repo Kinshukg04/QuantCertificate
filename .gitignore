@@ -1,2 +1,14 @@
 flask
 users.db
+
+# Environments
+venv/
+env/
+.env
+.venv
+
+# Caches
+**/__pycache__/
+
+# Settings
+.vscode/
