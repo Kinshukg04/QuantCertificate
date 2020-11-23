@@ -1,7 +1,6 @@
-# Flask Login
+# QuantCertificate
 
-Flask app to manage user login and registration.
-  
+
 Setup:
 ```
 git clone https://github.com/Kinshukg04/Crypto_project.git
@@ -9,7 +8,6 @@ cd flask-login
 virtualenv flask -p python3
 source flask/bin/activate
 pip3 install -r requirements.txt
-pip install qiskit
 python3 app.py
 ```
 
