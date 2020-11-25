@@ -3,3 +3,4 @@ Flask-SQLAlchemy
 qiskit
 imagehash
 pycryptodome
+python-dotenv
