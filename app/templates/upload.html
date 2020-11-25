@@ -4,13 +4,30 @@
 		<div class="container-login100">
 			<div class="wrap-login100 p-t-50 p-b-90">
 				<span class="login100-form-title p-b-51">
-					<h1>Upload new File</h1>
+					<!-- <h3>Upload new File</h3> -->
 				</span>
-				<form method=post enctype=multipart/form-data>
+<!-- 				<form method=post enctype=multipart/form-data>
 					<input type=file name=file>
 					<input type=submit value=Upload>
+				</form> -->
+				<form method=post enctype=multipart/form-data>
+				<div class="input-group mb-3">
+				  <div class="input-group-prepend">
+				    <button class="btn btn-outline-secondary" type=submit value=Upload  id="Upload">Upload</button>
+				  </div>
+				  <div class="custom-file">
+				    <input type=file name=file class="custom-file-input" id="file" aria-describedby="Upload">
+				    <label class="custom-file-label" for="file">Choose file</label>
+				  </div>
+				</div>
 				</form>
-				<div class="container-login100-form-btn m-t-17">
+				<div class="input-group mb-3">
+				  <input type="text" class="form-control" placeholder="Recipient's username" aria-label="Recipient's username" aria-describedby="Recipient_username">
+				  <div class="input-group-append">
+				    <button class="btn btn-primary" type="button" id="Recipient_username">Send</button>
+				  </div>
+				</div>
+												<!-- <div class="container-login100-form-btn m-t-17">
 				<button class="login100-form-btn">
 					<a class="login100-form-btn" href="/send">Send</a>
 				</button>
@@ -19,8 +36,10 @@
 				<button class="login100-form-btn">
 					<a class="login100-form-btn" href="/"> Return to Home</a>
 				</button>
-				</div>
+				</div> -->
 			</div>
 		</div>
 	</div>
 {% endblock %}
+
+
