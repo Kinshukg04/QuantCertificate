@@ -24,11 +24,22 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
-    #file = file_upload.Column()
+    #file = file_upload.Column()s
 
     def __init__(self, username, password):
         self.username = username
         self.password = password
+
+
+class File(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    file_path = db.Column(db.String(200))
+    file_title = db.Column(db.String(20))
+
+    def __init__(self,id,file_path):
+        self.id = id
+        self.file_path = file_path
+        self.file_title = file_title
 
 
 @app.route('/', methods=['GET'])
@@ -98,6 +109,8 @@ def upload_file():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            # db.session.add(File(username=, file_path=,file_title = ))
+            # db.session.commit()
             #User_post = User(user_username,user_password)
             #file_upload.save_files(User_post,files = {'file':file})
             #return redirect(url_for('uploaded_file',filename=filename))
