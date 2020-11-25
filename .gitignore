@@ -10,7 +10,7 @@ venv/
 env/
 .env
 .venv
-
+uploads
 # Caches
 **/__pycache__/
 
