@@ -1,7 +1,7 @@
 from app import db
 
 class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
     #file = file_upload.Column()s
@@ -10,13 +10,15 @@ class User(db.Model):
         self.username = username
         self.password = password
 
+class Message(db.Model):
+    messsage_id = db.Column(db.Integer, primary_key=True)
+    sent_by = db.Column(db.Integer)
+    received_by = db.Column(db.Integer)
+    filepath = db.Column(db.String(300))
+    hash = db.Column(db.String(1024))
 
-# class File(db.Model):
-#     id = db.Column(db.Integer, primary_key=True)
-#     file_path = db.Column(db.String(200))
-#     file_title = db.Column(db.String(20))
-
-#     def __init__(self,id,file_path,file_title):
-#         self.id = id
-#         self.file_path = file_path
-#         self.file_title = file_title
+    def __init__(self, sent_by, received_by, filepath, hash):
+        self.sent_by = sent_by
+        self.received_by = received_by
+        self.filepath = filepath
+        self.hash = hash

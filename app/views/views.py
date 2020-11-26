@@ -4,7 +4,11 @@ from flask import url_for, render_template, request, redirect, flash, send_from_
 from werkzeug.utils import secure_filename
 import os
 
+# Allowed files
 ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg'}
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/', methods=['GET'])
 def index():
@@ -15,16 +19,22 @@ def index():
 
 @app.route('/register/', methods=['GET', 'POST'])
 def register():
+    if session.get('logged_in'):
+        return render_template('home.html')
+
+    if request.method == 'GET':
+        return render_template('register.html')
+    
     if request.method == 'POST':
         try:
+            # Add the user to db
+            # TODO: Encrypt the password
             db.session.add(User(username=request.form['username'], password=request.form['password']))
             db.session.commit()
+
             return redirect(url_for('login'))
         except:
             return render_template('index.html', message="User Already Exists")
-    else:
-        return render_template('register.html')
-
 
 @app.route('/login/', methods=['GET', 'POST'])
 def login():
@@ -34,41 +44,36 @@ def login():
         u = request.form['username']
         p = request.form['password']
         data = User.query.filter_by(username=u, password=p).first()
-        print(data.id, data.username, data.password)
+
         if data is not None:
+            # Log in
             session['logged_in'] = True
-            session['username'] = u
-            session['password'] = p
+            session['user_id']  = data.user_id
+            session['username'] = data.username
+
             return redirect(url_for('index'))
-        return render_template('index.html', message="Incorrect Details")
 
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
+        return render_template('index.html', message="Incorrect details or User does not exist!!")
 
 @app.route('/inbox', methods = ['GET'])
 def inbox():
-
     return render_template('inbox.html')
+
 @app.route('/send', methods = ['GET','POST'])
 def send():
-
     return render_template('send.html')
     
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
-        # check if the post request has the file part
         if 'file' not in request.files:
             flash('No file part')
             return redirect(request.url)
         file = request.files['file']
-        # if user does not select file, browser also
-        # submit an empty part without filename
         if file.filename == '':
             flash('No selected file')
             return redirect(request.url)
+        
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
@@ -82,7 +87,7 @@ def upload_file():
             flash('Upload Failed. Try again','Error:') 
             return render_template('upload.html',message= "File uploaded")
 
-    return render_template('upload.html',message= "Upload Failed")
+    return render_template('upload.html', message="Upload Failed")
 
 # from werkzeug.middleware.shared_data import SharedDataMiddleware
 # app.add_url_rule('/uploads/<filename>', 'uploaded_file',
