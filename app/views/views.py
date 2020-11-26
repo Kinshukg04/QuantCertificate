@@ -66,7 +66,7 @@ def send():
     return render_template('send.html')
     
 @app.route('/upload', methods=['GET', 'POST'])
-def upload_file():
+def upload():
     if request.method == 'POST':
         if 'file' not in request.files:
             flash('No file part')
