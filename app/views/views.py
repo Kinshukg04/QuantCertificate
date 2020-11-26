@@ -7,7 +7,7 @@ import os
 from PIL import Image
 
 # Allowed files
-ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg'}
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -59,7 +59,9 @@ def login():
 
 @app.route('/inbox', methods = ['GET'])
 def inbox():
-    return render_template('inbox.html')
+    file = Message.query.filter_by(received_by = session['user_id']).all()
+    print(file)
+    return render_template('inbox.html',file = file)
 
 @app.route('/send', methods = ['GET','POST'])
 def send():
@@ -88,8 +90,9 @@ def upload():
         recipeint_username = request.form['recipeint_username']
         subject = request.form['subject']
         if User.query.filter_by(username=recipeint_username).first() is None:
+            flash("user does not exist",'error')
             return render_template('upload.html',message= "Upload Failed")
-
+        
         # Perform crypto
         hashed_data = qcalgos.hash_image(Image.open(filepath))
         key = qcalgos.create_quantum_shared_key(max_size=256)
@@ -108,6 +111,8 @@ def upload():
             key=key
         ))
         db.session.commit()
+
+        return render_template('upload.html')
 
     return render_template('upload.html')
 

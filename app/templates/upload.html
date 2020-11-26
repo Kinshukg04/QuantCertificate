@@ -10,6 +10,7 @@
 					<input type=file name=file>
 					<input type=submit value=Upload>
 				</form> -->
+				<form method=post enctype=multipart/form-data>
 				<div class="input-group mb-3">
 				  <input type="text" name = "recipeint_username" class="form-control" placeholder="Recipient's username" aria-label="Recipient's username" aria-describedby="Recipient_username">
 
@@ -19,7 +20,7 @@
 
 				</div>
 			
-				<form method=post enctype=multipart/form-data>
+				
 				<div class="input-group mb-3">
 				  <div class="input-group-prepend">
 				    <button class="btn btn-outline-secondary" value="Upload"  id="Upload">Upload</button>
@@ -31,7 +32,7 @@
 				</div>
 				</form>
 				<div class="input-group-append">
-				    <button class="btn btn-primary" type="submit" id="Recipient_username">Send</button>
+				    <button class="btn btn-primary" type="button" id="send">Send</button>
 				</div>
 				<!-- <div class="container-login100-form-btn m-t-17">
 				<button class="login100-form-btn">

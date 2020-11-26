@@ -100,7 +100,14 @@ def create_quantum_shared_key(max_size=256):
         # TODO: Remove huge stack call (extremely rare situation or impossible though)
         return create_quantum_shared_key(max_size=max_size)
     
-    return shared_key
+    shared_key = (max_size - len(shared_key))*'0' + ''.join([str(s) for s in shared_key])
+    key = ''
+    for i in range(0, len(shared_key), 8): 
+        temp_data = shared_key[i:i + 8] 
+        decimal_data = int(temp_data, 2) 
+        key = key + chr(decimal_data)
+
+    return key
 
 def hash_image(image, hash_size=256):
     """Returns binary hash numpy array of length hash size encoding image
@@ -123,20 +130,19 @@ def hash_image(image, hash_size=256):
     hash = np.array(list(map(int, hash)))
 
     assert(hash.shape==(hash_size,)), "Unexpected error in calculating message hash"
+    hash = "".join([str(s) for s in hash])
+    
     return hash
 
 def encrypt(key, data, key_size=256):
     # Make key in suitable format
-    key = (key_size - len(key))*'0' + ''.join(key)
-    key = bin(int(str(key), 16)).replace("0b", "")
-
-    cipher = AES.new(key, AES.MODE_EAX)
+    cipher = AES.new(key.encode('utf8')[:32], AES.MODE_EAX)
     nonce = cipher.nonce
-    ciphertext, tag = cipher.encrypt_and_digest(data)
+    ciphertext, tag = cipher.encrypt_and_digest(data.encode('utf8'))
     return nonce, ciphertext, tag
 
 def decrypt(key, nonce, ciphertext, tag):
-    cipher = AES.new(key, AES.MODE_EAX, nonce=nonce)
+    cipher = AES.new(key.encode('utf8')[:32], AES.MODE_EAX, nonce=nonce)
     plaintext = cipher.decrypt(ciphertext)
     try:
         cipher.verify(tag)
@@ -145,7 +151,4 @@ def decrypt(key, nonce, ciphertext, tag):
         print("Key incorrect or message corrupted")
     return plaintext
 
-# print(hash_image(image))
-size=256
-print(create_quantum_shared_key(max_size=size))
 
