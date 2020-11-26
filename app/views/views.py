@@ -7,7 +7,7 @@ import os
 from PIL import Image
 
 # Allowed files
-ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg'}
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -59,7 +59,9 @@ def login():
 
 @app.route('/inbox', methods = ['GET'])
 def inbox():
-    return render_template('inbox.html')
+    file = Message.query.filter_by(received_by = session['user_id']).all()
+    print(file)
+    return render_template('inbox.html',file = file)
 
 @app.route('/send', methods = ['GET','POST'])
 def send():

@@ -127,9 +127,11 @@ def hash_image(image, hash_size=256):
 
 def encrypt(key, data, key_size=256):
     # Make key in suitable format
-    key = (key_size - len(key))*'0' + ''.join(key)
-    key = bin(int(str(key), 16)).replace("0b", "")
-    print(key)
+   
+    key = (key_size - len(key))*'0' + ''.join([str(s) for s in key])
+    print(key,len(key))
+    key = bin(int(str(key), 2))#.replace("0b", "")
+    print(len(key))
     cipher = AES.new(key, AES.MODE_EAX)
     nonce = cipher.nonce
     ciphertext, tag = cipher.encrypt_and_digest(data)
