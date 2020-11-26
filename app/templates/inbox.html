@@ -7,7 +7,7 @@
                 <th>S/N</th>
                 <th>File Title</th>
                 <th>Sender</th>
-                <th>Actions</th>
+                <th>View</th>
             </tr>
         </thead>
         <tbody>
@@ -15,7 +15,8 @@
             <tr>
                 <th scope="row">{{ f.sent_by }}</th>
                 <td>{{ f.title }}</td>
-                <td>{{ f.sent_by }}</td>
+                <td>{{ u_name[loop.index] }}</td>
+                <td>  <img src="{{url_for('static', filename=f.filepath)}}" /></td>
             </tr>
             {% endfor %}
         </tbody>

@@ -59,9 +59,12 @@ def login():
 
 @app.route('/inbox', methods = ['GET'])
 def inbox():
+
     file = Message.query.filter_by(received_by = session['user_id']).all()
-    print(file)
-    return render_template('inbox.html',file = file)
+    #print(file)
+    u_name = [User.query.filter_by(user_id = f.sent_by).first().username for f in file]
+    
+    return render_template('inbox.html',file = file,u_name = u_name)
 
 @app.route('/send', methods = ['GET','POST'])
 def send():
