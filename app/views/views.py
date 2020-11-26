@@ -1,8 +1,10 @@
 from app import app, db
-from app.models.models import User
+from app.models.models import User, Message
+from app.src import qcalgos
 from flask import url_for, render_template, request, redirect, flash, send_from_directory, session
 from werkzeug.utils import secure_filename
 import os
+from PIL import Image
 
 # Allowed files
 ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg'}
@@ -76,18 +78,38 @@ def upload_file():
         
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            # db.session.add(File(username=, file_path=,file_title = ))
-            # db.session.commit()
-            #User_post = User(user_username,user_password)
-            #file_upload.save_files(User_post,files = {'file':file})
-            #return redirect(url_for('uploaded_file',filename=filename))
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(filepath)
             flash("file uploaded successfully",'Success')
         else: 
             flash('Upload Failed. Try again','Error:') 
-            return render_template('upload.html',message= "File uploaded")
+            return render_template('upload.html',message= "Upload Failed")
+        
+        recipeint_username = request.form['recipeint_username']
+        subject = request.form['subject']
+        if User.query.filter_by(username=recipeint_username).first() is None:
+            return render_template('upload.html',message= "Upload Failed")
 
-    return render_template('upload.html', message="Upload Failed")
+        # Perform crypto
+        hashed_data = qcalgos.hash_image(Image.open(filepath))
+        key = qcalgos.create_quantum_shared_key(max_size=256)
+        nonce, ciphertext, tag = qcalgos.encrypt(key, hashed_data, key_size=256)
+        
+        # Add to the database
+        db.session.add(Message(
+            sent_by=session['user_id'],
+            received_by=User.query.filter_by(username=recipeint_username).first().user_id,
+            title=subject,
+            filepath=filepath,
+            hashed_data=hashed_data,
+            nonce=nonce,
+            ciphertext=ciphertext,
+            tag=tag,
+            key=key
+        ))
+        db.session.commit()
+
+    return render_template('upload.html')
 
 # from werkzeug.middleware.shared_data import SharedDataMiddleware
 # app.add_url_rule('/uploads/<filename>', 'uploaded_file',
@@ -99,7 +121,6 @@ def upload_file():
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'],
                                filename)
-
 
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():

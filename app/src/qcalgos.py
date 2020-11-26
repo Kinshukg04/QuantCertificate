@@ -5,8 +5,6 @@ from PIL import Image
 import imagehash
 from Crypto.Cipher import AES
 
-image = Image.open('../tmp/my wallpaper.png')
-
 def random_binary_array(size=256):
     return np.random.randint(2, size=size)
 
@@ -127,10 +125,15 @@ def hash_image(image, hash_size=256):
     assert(hash.shape==(hash_size,)), "Unexpected error in calculating message hash"
     return hash
 
-def encrypt(key, data):
+def encrypt(key, data, key_size=256):
+    # Make key in suitable format
+    key = (key_size - len(key))*'0' + ''.join(key)
+    key = bin(int(str(key), 16)).replace("0b", "")
+    print(key)
     cipher = AES.new(key, AES.MODE_EAX)
     nonce = cipher.nonce
     ciphertext, tag = cipher.encrypt_and_digest(data)
+    return nonce, ciphertext, tag
 
 def decrypt(key, nonce, ciphertext, tag):
     cipher = AES.new(key, AES.MODE_EAX, nonce=nonce)
@@ -140,6 +143,7 @@ def decrypt(key, nonce, ciphertext, tag):
         print("The message is authentic:", plaintext)
     except ValueError:
         print("Key incorrect or message corrupted")
+    return plaintext
 
 # print(hash_image(image))
 size=256
